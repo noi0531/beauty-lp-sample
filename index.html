@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>美容機器LP（スマホ対応版）</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: "Noto Sans JP", sans-serif;
+      color: #333;
+      background: #fff;
+      scroll-behavior: smooth;
+    }
+    header {
+      background: url('https://images.unsplash.com/photo-1600498743512-1b5e79b3c2df?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&h=900&q=80') no-repeat center center/cover;
+      height: 100vh;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+    }
+    header h1 {
+      font-family: 'Lora', serif;
+      font-size: 3.5rem;
+      background: linear-gradient(45deg, #e91e63, #f48fb1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: slideDown 1s ease-out;
+    }
+    header p {
+      font-size: 1.5rem;
+      color: #fff;
+      animation: fadeInUp 1.5s ease-out;
+    }
+    section {
+      max-width: 1000px;
+      margin: 60px auto;
+      padding: 20px;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    }
+    section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .highlight {
+      font-family: 'Lora', serif;
+      font-size: 2.2rem;
+      color: #e91e63;
+      text-shadow: 1px 1px 4px rgba(0,0,0,0.3);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .product-list {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .product {
+      width: 250px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      overflow: hidden;
+      text-align: center;
+      background: #f9f9f9;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .product:hover {
+      transform: scale(1.1) rotate(-1deg);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+    }
+    .product img {
+      width: 100%;
+      height: auto;
+    }
+    .product h3 {
+      margin: 10px 0;
+      color: #e91e63;
+    }
+    .product p {
+      margin: 5px 0;
+    }
+    .product button {
+      background: linear-gradient(45deg, #e91e63, #f48fb1);
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 30px;
+      cursor: pointer;
+      margin: 5px 5px 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      transition: all 0.3s;
+    }
+    .product button:hover {
+      background: linear-gradient(45deg, #d81b60, #f06292);
+    }
+    .product button:active {
+      transform: scale(0.95);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .details {
+      display: none;
+      background: #f0f0f0;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 5px;
+    }
+    .comparison table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .comparison th, .comparison td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+    .review {
+      background: #f9f9f9;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      border-left: 6px solid #e91e63;
+    }
+    .faq details {
+      margin-bottom: 15px;
+    }
+    .faq summary {
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .fixed-buttons {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 999;
+    }
+    .fixed-buttons a {
+      display: inline-block;
+      padding: 12px 20px;
+      background: linear-gradient(45deg, #e91e63, #f48fb1);
+      color: white;
+      text-decoration: none;
+      border-radius: 30px;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      transition: all 0.3s;
+    }
+    .fixed-buttons a:hover {
+      transform: scale(1.1);
+    }
+    .fixed-buttons a:active {
+      transform: scale(0.95);
+    }
+    .fixed-buttons a.line {
+      background: linear-gradient(45deg, #00c300, #66ff66);
+    }
+    .fixed-buttons a.doc {
+      background: linear-gradient(45deg, #333, #777);
+    }
+    footer {
+      text-align: center;
+      padding: 40px 20px;
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+    /* モーダル */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: #fff;
+      padding: 30px;
+      max-width: 600px;
+      width: 90%;
+      border-radius: 10px;
+      overflow-y: auto;
+      max-height: 90vh;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      border: 2px solid #e91e63;
+    }
+    .modal-content h2 {
+      color: #e91e63;
+      margin-top: 0;
+    }
+    .close {
+      float: right;
+      font-size: 24px;
+      cursor: pointer;
+      color: #e91e63;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+    .form-group .checkboxes label {
+      display: inline-block;
+      margin-right: 15px;
+      font-weight: normal;
+    }
+    .form-group button {
+      background: linear-gradient(45deg, #e91e63, #f48fb1);
+      color: #fff;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 30px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-top: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      transition: all 0.3s;
+    }
+    .form-group button:hover {
+      background: linear-gradient(45deg, #d81b60, #f06292);
+    }
+    .form-group button:active {
+      transform: scale(0.95);
+    }
+    .cart-items {
+      margin-bottom: 20px;
+      background: #f9f9f9;
+      padding: 10px;
+      border-radius: 5px;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ★ スマホ対応CSS */
+    @media screen and (max-width: 768px) {
+      header h1 {
+        font-size: 2rem;
+      }
+      header p {
+        font-size: 1rem;
+      }
+      .product-list {
+        flex-direction: column;
+        align-items: center;
+      }
+      .product {
+        width: 90%;
+      }
+      .fixed-buttons a {
+        font-size: 0.9rem;
+        padding: 10px 15px;
+      }
+      .comparison table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>プロ仕様の美容機器で<br>サロン経営を加速</h1>
+      <p>今なら相場400万円 → 180万円で導入可能</p>
+    </div>
+  </header>
+
+  <section>
+    <div class="highlight">製品ラインナップ</div>
+    <div class="product-list">
+      <div class="product">
+        <img src="https://source.unsplash.com/250x180/?beauty-machine" alt="製品1">
+        <h3>美容機器A</h3>
+        <p>¥1,800,000（税込）</p>
+        <p>最新脱毛技術搭載</p>
+        <button onclick="addToCart('美容機器A')">見積もりカートに追加</button>
+        <button onclick="toggleDetails(this)">詳細を見る</button>
+        <div class="details">
+          美容機器Aの詳細説明がここに表示されます。
+        </div>
+      </div>
+      <div class="product">
+        <img src="https://source.unsplash.com/250x180/?spa" alt="製品2">
+        <h3>美容機器B</h3>
+        <p>¥1,800,000（税込）</p>
+        <p>フェイシャル施術対応</p>
+        <button onclick="addToCart('美容機器B')">見積もりカートに追加</button>
+        <button onclick="toggleDetails(this)">詳細を見る</button>
+        <div class="details">
+          美容機器Bの詳細説明がここに表示されます。
+        </div>
+      </div>
+      <div class="product">
+        <img src="https://source.unsplash.com/250x180/?salon" alt="製品3">
+        <h3>美容機器C</h3>
+        <p>¥1,800,000（税込）</p>
+        <p>省スペース設計</p>
+        <button onclick="addToCart('美容機器C')">見積もりカートに追加</button>
+        <button onclick="toggleDetails(this)">詳細を見る</button>
+        <div class="details">
+          美容機器Cの詳細説明がここに表示されます。
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="comparison">
+    <div class="highlight">他社との製品比較</div>
+    <table>
+      <tr>
+        <th>製品名</th>
+        <th>価格</th>
+        <th>機能</th>
+        <th>保証</th>
+      </tr>
+      <tr>
+        <td>当社製品</td>
+        <td>180万円</td>
+        <td>脱毛/フェイシャル</td>
+        <td>3年</td>
+      </tr>
+      <tr>
+        <td>他社A</td>
+        <td>400万円</td>
+        <td>脱毛のみ</td>
+        <td>1年</td>
+      </tr>
+      <tr>
+        <td>他社B</td>
+        <td>350万円</td>
+        <td>フェイシャルのみ</td>
+        <td>1年</td>
+      </tr>
+    </table>
+  </section>
+
+  <section>
+    <div class="highlight">製品使用者のデータ</div>
+    <div class="review">
+      「美容機器Aを導入後、3ヶ月で売上が150％UP！」（Aサロン様）
+    </div>
+    <div class="review">
+      「フェイシャルの幅が広がり、客単価が2倍になりました！」（Bサロン様）
+    </div>
+  </section>
+
+  <section>
+    <div class="highlight">購入者サポート</div>
+    <ul>
+      <li>フォローアップセミナー</li>
+      <li>SNS集客講習</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="highlight">Before / After</div>
+    <div class="img-block">
+      <img src="https://source.unsplash.com/800x400/?face-treatment" alt="before after">
+      <p>導入前後の結果例です。効果には個人差があります。</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="highlight">こんなサロン様におすすめ</div>
+    <form>
+      <label><input type="checkbox"> 開業予定の方</label><br>
+      <label><input type="checkbox"> 売上アップを目指す方</label><br>
+      <label><input type="checkbox"> SNS運用が苦手な方</label><br>
+    </form>
+  </section>
+
+  <section>
+    <div class="highlight">製品以外のサービス紹介</div>
+    <ul>
+      <li>美容液・パックなどの商材販売</li>
+      <li>SNSアカウント作成代行</li>
+      <li>HP作成・集客講習</li>
+      <li>顧客管理システム</li>
+      <li>サロン出店支援サービス</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="highlight">よくある質問</div>
+    <div class="faq">
+      <details>
+        <summary>ローン審査は厳しいですか？</summary>
+        <p>個人事業主様も多く通過されています。</p>
+      </details>
+      <details>
+        <summary>納期はどのくらいですか？</summary>
+        <p>最短1週間で発送可能です。</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- モーダル：見積もり -->
+  <div id="estimateModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('estimateModal')">&times;</span>
+      <h2>見積もり依頼フォーム</h2>
+      <div class="cart-items" id="cartItems"></div>
+      <form id="estimateForm">
+        <div class="form-group">
+          <label>サロン名</label>
+          <input type="text" name="salon" required>
+        </div>
+        <div class="form-group">
+          <label>個人名</label>
+          <input type="text" name="name" required>
+        </div>
+        <div class="form-group">
+          <label>メールアドレス</label>
+          <input type="email" name="email" required>
+        </div>
+        <div class="form-group">
+          <label>電話番号</label>
+          <input type="tel" name="phone">
+        </div>
+        <div class="form-group">
+          <label>その他サービスの検討有無</label>
+          <div class="checkboxes">
+            <label><input type="checkbox" name="services" value="商材購入"> 商材購入</label>
+            <label><input type="checkbox" name="services" value="SNS代行"> SNS代行</label>
+            <label><input type="checkbox" name="services" value="HP作成"> HP作成</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>備考欄</label>
+          <textarea name="note" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <button type="submit">送信する</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- モーダル：資料請求 -->
+  <div id="documentModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('documentModal')">&times;</span>
+      <h2>資料請求フォーム</h2>
+      <form id="documentForm">
+        <div class="form-group">
+          <label>サロン名</label>
+          <input type="text" name="salon" required>
+        </div>
+        <div class="form-group">
+          <label>個人名</label>
+          <input type="text" name="name" required>
+        </div>
+        <div class="form-group">
+          <label>メールアドレス</label>
+          <input type="email" name="email" required>
+        </div>
+        <div class="form-group">
+          <label>電話番号</label>
+          <input type="tel" name="phone">
+        </div>
+        <div class="form-group">
+          <label>資料請求する機器</label>
+          <div class="checkboxes">
+            <label><input type="checkbox" name="machine" value="美容機器A"> 美容機器A</label>
+            <label><input type="checkbox" name="machine" value="美容機器B"> 美容機器B</label>
+            <label><input type="checkbox" name="machine" value="美容機器C"> 美容機器C</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>その他サービスの検討有無</label>
+          <div class="checkboxes">
+            <label><input type="checkbox" name="services" value="商材購入"> 商材購入</label>
+            <label><input type="checkbox" name="services" value="SNS代行"> SNS代行</label>
+            <label><input type="checkbox" name="services" value="HP作成"> HP作成</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>備考欄</label>
+          <textarea name="note" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <button type="submit">送信する</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="fixed-buttons">
+    <a onclick="openModal('estimateModal')" id="estimateBtn">見積もり依頼はこちら (0)</a>
+    <a href="https://line.me/ti/p/your_line_id" target="_blank" class="line">LINEで相談</a>
+    <a onclick="openModal('documentModal')" class="doc">資料請求</a>
+  </div>
+
+  <footer>
+    &copy; 2025 美容機器販売プロジェクト
+  </footer>
+
+  <script>
+    let cart = [];
+
+    function addToCart(item) {
+      cart.push(item);
+      document.getElementById('estimateBtn').textContent =
+        `見積もり依頼はこちら (${cart.length})`;
+      alert(`${item} をカートに追加しました！`);
+    }
+
+    function toggleDetails(btn) {
+      const details = btn.nextElementSibling;
+      details.style.display =
+        details.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function openModal(id) {
+      if (id === 'estimateModal') {
+        let cartHtml = cart.length
+          ? '<ul><li>' + cart.join('</li><li>') + '</li></ul>'
+          : 'カートは空です。';
+        document.getElementById('cartItems').innerHTML = cartHtml;
+      }
+      document.getElementById(id).style.display = 'flex';
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+
+    document.getElementById('estimateForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      alert('見積もり依頼フォームが送信されました！');
+      closeModal('estimateModal');
+    });
+
+    document.getElementById('documentForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      alert('資料請求フォームが送信されました！');
+      closeModal('documentModal');
+    });
+
+    window.addEventListener('scroll', function() {
+      document.querySelectorAll('section').forEach(sec => {
+        const rect = sec.getBoundingClientRect();
+        if (rect.top < window.innerHeight - 100) {
+          sec.classList.add('visible');
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
